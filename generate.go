@@ -29,14 +29,17 @@ func (gen *logGenerate) genLogPrefix(skip, depth int, typeHead string) string {
 	}
 	var s string
 	var msg string
-	var pc = make([]uintptr, depth)
-	runtime.Callers(skip+1, pc)
 	if gen.codeLine {
+		var pc = make([]uintptr, depth)
+		runtime.Callers(skip+1, pc)
 		for i := 0; i < len(pc); i++ {
 			if pc[i] == 0 {
 				break
 			}
 			file, line := runtime.FuncForPC(pc[i]).FileLine(pc[i])
+			if len(file) > 8 && file[len(file)-8:] == "panic.go" {
+				continue
+			}
 			gen.splitFilePath(&file)
 			s = fmt.Sprintf("%s:%d", file, line)
 			msg += s + " -> "

@@ -35,16 +35,7 @@ var AppendLog = true
 
 func strTime() string {
 	now := time.Now()
-	return strconv.Itoa(now.Year()%2000) + ":" + strconv.Itoa(int(now.Month())) + ":" + strconv.Itoa(now.Day())
-}
-
-//LogMsg : log struct
-type LogMsg struct {
-	ProjectID   string `bson:"pid" json:"pid"`     // App id
-	ProjectName string `bson:"pName" json:"pName"` // App name
-	FuncPath    string `bson:"fPath" json:"fPath"` // func call
-	Time        int64  `bson:"time" json:"time"`   //
-	Tag         string `bson:"tag" json:"tag"`     //
-	Msg         string `bson:"msg" json:"msg"`     //
-	Level       int    `bson:"level" json:"level"` //
+	return strconv.Itoa(now.Year()%2000) +
+		":" + strconv.Itoa(int(now.Month())) +
+		":" + strconv.Itoa(now.Day()) //+ "▶"
 }

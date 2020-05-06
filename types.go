@@ -1,23 +1,15 @@
 package glog
 
-//IBaseLog :
-type IBaseLog interface {
-	ISetting
+//ILogWriter :
+type ILogWriter interface {
 	ILogger
-}
-
-//ISetting :
-type ISetting interface {
-	SetLevel(level int)
-	SetEventSignal(c chan string)
 	Flush()
+	SetLevel(level int)
+	SetEventSignal(c chan *LogMsg)
 }
 
 //ILogger : Logger interface
 type ILogger interface {
-	//EmptyBlock
-	Empty()
-
 	Trace(format string, args ...interface{})
 	TraceStack(skip, depth int, format string, args ...interface{})
 
@@ -35,4 +27,13 @@ type ILogger interface {
 
 	Fatal(format string, args ...interface{})
 	FatalStack(skip, depth int, format string, args ...interface{})
+}
+
+//LogMsg : log struct
+type LogMsg struct {
+	ID      string `bson:"_id" json:"id"`                              //
+	Level   int    `bson:"level,omitempty" json:"level,omitempty"`     //
+	Time    int64  `bson:"time,omitempty" json:"time,omitempty"`       //
+	Msg     string `bson:"msg,omitempty" json:"msg,omitempty"`         //
+	AppName string `bson:"appName,omitempty" json:"appName,omitempty"` // App name
 }

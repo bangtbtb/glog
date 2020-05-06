@@ -10,11 +10,6 @@ func newTagLog(tag string, il ILogger) ILogger {
 	return res
 }
 
-//Empty :
-func (tl *tagLog) Empty() {
-	tl.Logger.Empty()
-}
-
 func (tl *tagLog) Trace(format string, args ...interface{}) {
 	tl.Logger.TraceStack(1, 1, tl.Tag+format, args...)
 }

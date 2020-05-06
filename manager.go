@@ -1,21 +1,27 @@
 package glog
 
-//LogManager : Logger manager
-type LogManager struct {
+//TagManager : Logger manager
+type TagManager struct {
 	Config  *Config
-	Logger  IBaseLog
+	Logger  ILogWriter
 	Ignores []string
 	TagLogs map[string]ILogger
 }
 
-//NewLogManager :
-func NewLogManager(igs []string, trimPrefix, name, logdir string, codeLine bool) (*LogManager, error) {
-	var manager = &LogManager{Ignores: igs}
-	if nil == igs {
+//NewTagManager :
+func NewTagManager(config *Config) (*TagManager, error) {
+	var manager = &TagManager{Ignores: config.IgnoreTags}
+	if nil == manager.Ignores {
 		manager.Ignores = make([]string, 0)
 	}
 	var err error
-	manager.Logger, err = NewFileLogger(trimPrefix, name, logdir, codeLine)
+	manager.Logger, err = NewFileLogger(OptionFileLogger{
+		ShowStd:    config.ShowStd,
+		ShowLine:   config.ShowLine,
+		TrimPrefix: config.BuildPath,
+		Name:       config.AppName,
+		LogDir:     config.Location,
+	})
 	if nil != err {
 		return nil, err
 	}
@@ -25,7 +31,7 @@ func NewLogManager(igs []string, trimPrefix, name, logdir string, codeLine bool)
 }
 
 //GetTagLog :
-func (tle *LogManager) GetTagLog(tag string) ILogger {
+func (tle *TagManager) GetTagLog(tag string) ILogger {
 	ret, ok := tle.TagLogs[tag]
 	if ok {
 		return ret
@@ -40,7 +46,7 @@ func (tle *LogManager) GetTagLog(tag string) ILogger {
 	return il
 }
 
-func (tle *LogManager) isIgnore(tag string) bool {
+func (tle *TagManager) isIgnore(tag string) bool {
 	for _, s := range tle.Ignores {
 		if s == tag {
 			return true
@@ -50,7 +56,7 @@ func (tle *LogManager) isIgnore(tag string) bool {
 }
 
 //SetLevel :
-func (tle *LogManager) SetLevel(level int) {
+func (tle *TagManager) SetLevel(level int) {
 	if nil != tle.Logger {
 		tle.Logger.SetLevel(level)
 	}

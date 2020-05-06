@@ -1,11 +1,12 @@
 package glog
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 var location, _ = filepath.Abs("./static")
@@ -13,22 +14,29 @@ var location, _ = filepath.Abs("./static")
 // var location = ""
 var config = &Config{
 	Append:     true,
-	BuildPath:  os.Getenv("GOPATH") + "/src/webapi/glogger",
+	AppName:    "test-log",
+	BuildPath:  os.Getenv("GOPATH") + "/src/github.com/bangtbtb/glog",
 	Location:   location,
-	CodeLine:   true,
+	ShowLine:   true,
+	ShowStd:    true,
 	IgnoreTags: []string{"ignore"},
 }
 
 func TestAll(t *testing.T) {
-	assert.Equal(t, nil, config.NormalizeByEnv())
-	config.InitResource("test-log")
+	os.Setenv("LOG_APP_NAME", "glogger-test")
+	os.Setenv("LOG_LEVEL", "0")
+	os.Setenv("LOG_LOCATION", "./static/log")
+	CheckError("Init by environment", config.NormalizeByEnv())
 
-	var manager = config.Logger
+	var manager = config.InitResource()
+	var pipe = make(chan *LogMsg, 256)
+	var ctx, cancel = context.WithCancel(context.TODO())
+
+	go listenChannel(ctx, pipe)
 	manager.SetLevel(5)
+	manager.Logger.SetEventSignal(pipe)
 
 	var log = manager.GetTagLog("TT")
-
-	log.Empty()
 
 	log.Trace("Trace at %d", 1)
 	log.TraceStack(0, 2, "Trace stack at %s", "abc")
@@ -48,7 +56,6 @@ func TestAll(t *testing.T) {
 	log.Fatal("fatal %d", 1)
 	log.FatalStack(0, 2, "fatal %d", 1)
 
-	manager.Logger.Empty()
 	manager.Logger.Trace("Trace at %d", 1)
 	manager.Logger.TraceStack(0, 2, "Trace stack at %s", "abc")
 	manager.Logger.Debug("debug at %d", 1)
@@ -63,7 +70,6 @@ func TestAll(t *testing.T) {
 	manager.Logger.FatalStack(0, 2, "fatal %d", 1)
 
 	var iglog = manager.GetTagLog("ignore")
-	iglog.Empty()
 
 	iglog.Trace("Trace at %d", 1)
 	iglog.TraceStack(0, 2, "Trace stack at %s", "abc")
@@ -84,4 +90,29 @@ func TestAll(t *testing.T) {
 	iglog.FatalStack(0, 2, "fatal %d", 1)
 
 	manager.Logger.Flush()
+	cancel()
+}
+
+func listenChannel(ctx context.Context, pipe chan *LogMsg) {
+	var done = false
+	for {
+		select {
+		case <-ctx.Done():
+			done = true
+			break
+		case msg := <-pipe:
+			fmt.Printf("Receive log: %+v\n", msg)
+			break
+		}
+		if done {
+			break
+		}
+	}
+}
+
+//CheckError :
+func CheckError(msg string, err error) {
+	if nil != err {
+		log.Fatalln(msg+": ", err)
+	}
 }
