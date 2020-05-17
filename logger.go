@@ -67,9 +67,6 @@ func (bl *fileLogger) write(msg string, level int, writer io.Writer) {
 	if writer != nil {
 		writer.Write([]byte(msg + "\r\n"))
 	}
-	if bl.showstd {
-		os.Stdout.Write([]byte(msg + "\r\n"))
-	}
 	if nil != bl.signalOut {
 		bl.signalOut <- &LogMsg{Level: level, Time: time.Now().Unix(), Msg: msg, AppName: bl.appName}
 	}
@@ -106,7 +103,9 @@ func (bl *fileLogger) Debug(format string, args ...interface{}) {
 	if bl.level <= LevelDebug {
 		p := bl.gen.genLogPrefix(2, 1, loggerDebugHead) + fmt.Sprintf(format, args...)
 		bl.write(p, LevelDebug, bl.writer)
-		color.Cyan.Println(p)
+		if bl.showstd {
+			color.Cyan.Println(p)
+		}
 	}
 }
 
@@ -114,7 +113,9 @@ func (bl *fileLogger) DebugStack(skip, depth int, format string, args ...interfa
 	if bl.level <= LevelDebug {
 		p := bl.gen.genLogPrefix(2+skip, depth, loggerDebugHead) + fmt.Sprintf(format, args...)
 		bl.write(p, LevelDebug, bl.writer)
-		color.Cyan.Println(p)
+		if bl.showstd {
+			color.Cyan.Println(p)
+		}
 	}
 }
 
@@ -122,7 +123,9 @@ func (bl *fileLogger) Info(format string, args ...interface{}) {
 	if bl.level <= LevelInfo {
 		p := bl.gen.genLogPrefix(2, 1, loggerInfoHead) + fmt.Sprintf(format, args...)
 		bl.write(p, LevelInfo, bl.writer)
-		color.Green.Println(p)
+		if bl.showstd {
+			color.Green.Println(p)
+		}
 	}
 }
 
@@ -130,7 +133,9 @@ func (bl *fileLogger) InfoStack(skip, depth int, format string, args ...interfac
 	if bl.level <= LevelInfo {
 		p := bl.gen.genLogPrefix(2+skip, depth, loggerInfoHead) + fmt.Sprintf(format, args...)
 		bl.write(p, LevelInfo, bl.writer)
-		color.Green.Println(p)
+		if bl.showstd {
+			color.Green.Println(p)
+		}
 	}
 }
 
@@ -138,7 +143,9 @@ func (bl *fileLogger) Warn(format string, args ...interface{}) {
 	if bl.level <= LevelWarn {
 		p := bl.gen.genLogPrefix(2, 1, loggerWarningHead) + fmt.Sprintf(format, args...)
 		bl.write(p, LevelWarn, bl.writer)
-		color.Yellow.Println(p)
+		if bl.showstd {
+			color.Yellow.Println(p)
+		}
 	}
 
 }
@@ -147,7 +154,9 @@ func (bl *fileLogger) WarnStack(skip, depth int, format string, args ...interfac
 	if bl.level <= LevelWarn {
 		p := bl.gen.genLogPrefix(2+skip, depth, loggerWarningHead) + fmt.Sprintf(format, args...)
 		bl.write(p, LevelWarn, bl.writer)
-		color.Yellow.Println(p)
+		if bl.showstd {
+			color.Yellow.Println(p)
+		}
 	}
 }
 
@@ -155,7 +164,9 @@ func (bl *fileLogger) Error(format string, args ...interface{}) {
 	if bl.level <= LevelError {
 		p := bl.gen.genLogPrefix(2, 1, loggerErrorHead) + fmt.Sprintf(format, args...)
 		bl.write(p, LevelError, bl.writer)
-		color.Error.Println(p)
+		if bl.showstd {
+			color.Error.Println(p)
+		}
 	}
 }
 
@@ -163,7 +174,9 @@ func (bl *fileLogger) ErrorStack(skip, depth int, format string, args ...interfa
 	if bl.level <= LevelError {
 		p := bl.gen.genLogPrefix(2+skip, depth, loggerErrorHead) + fmt.Sprintf(format, args...)
 		bl.write(p, LevelError, bl.writer)
-		color.Error.Println(p)
+		if bl.showstd {
+			color.Error.Println(p)
+		}
 	}
 }
 
@@ -171,7 +184,9 @@ func (bl *fileLogger) Fatal(format string, args ...interface{}) {
 	if bl.level <= LevelFatal {
 		p := bl.gen.genLogPrefix(2, 1, loggerFatalHead) + fmt.Sprintf(format, args...)
 		bl.write(p, LevelFatal, bl.writer)
-		color.Red.Println(p)
+		if bl.showstd {
+			color.Red.Println(p)
+		}
 	}
 }
 
@@ -179,6 +194,8 @@ func (bl *fileLogger) FatalStack(skip, depth int, format string, args ...interfa
 	if bl.level <= LevelFatal {
 		p := bl.gen.genLogPrefix(2+skip, depth, loggerFatalHead) + fmt.Sprintf(format, args...)
 		bl.write(p, LevelFatal, bl.writer)
-		color.Red.Println(p)
+		if bl.showstd {
+			color.Red.Println(p)
+		}
 	}
 }

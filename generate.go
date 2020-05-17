@@ -19,7 +19,11 @@ type logGenerate struct {
 
 func newLogGenerate(printCode bool, header string, trimPrefix string) *logGenerate {
 	var gen = &logGenerate{codeLine: printCode, trimPrefix: trimPrefix}
-	gen.logFormat = header + bulkheadSpace + "%s" + bulkheadSpace + "%s" + bulkheadSpace + "%s" + bulkheadSpace
+	if gen.codeLine {
+		gen.logFormat = header + bulkheadSpace + "%s" + bulkheadSpace + "%s" + bulkheadSpace + "%s" + bulkheadSpace
+	} else {
+		gen.logFormat = header + bulkheadSpace + "%s" + bulkheadSpace + "%s" + bulkheadSpace
+	}
 	return gen
 }
 
@@ -45,8 +49,9 @@ func (gen *logGenerate) genLogPrefix(skip, depth int, typeHead string) string {
 			msg += s + " -> "
 		}
 		s = msg[:len(msg)-3]
+		return fmt.Sprintf(gen.logFormat, typeHead, strTime(), s)
 	}
-	return fmt.Sprintf(gen.logFormat, typeHead, strTime(), s)
+	return fmt.Sprintf(gen.logFormat, typeHead, strTime())
 }
 
 func (gen *logGenerate) splitFilePath(path *string) {
